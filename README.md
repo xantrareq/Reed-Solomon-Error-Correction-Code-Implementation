@@ -36,13 +36,28 @@ This library provides functions for arithmetic operations in the finite field GF
 1. Initialize tables with the primitive polynomial (default `0x11d`):
 
 ```python
-create_tables(prim=0x11d)
+    n = 20 # n is the total number of characters in the code word (message + verification characters)
+    message = "BÏÕHÄzÃRÐ"
+    k = len(message)
+    r = n - k
 
+    create_tables()
 
-message = "Hello, world!"
-message_bytes = list(message.encode("utf-8"))
-k = len(message_bytes)
-r = 16  # Number of parity symbols
+    print(f"Original message:       \033[95m{message}\033[0m")
+    ascii_msg = [ord(c) for c in message]
+    print(f"Message in ASCII:       \033[92m{ascii_msg}\033[0m")
 
-encoded_msg = Encoding(message_bytes, r)
-print("Encoded message:", encoded_msg)
+    encoded = encode_message(ascii_msg, r)
+    print(f"Encoded message:        \033[92m{encoded}\033[0m")
+
+    # Introduce some errors and erasures
+    encoded[0] = 12
+    encoded[1] = 101
+    encoded[6] = 15
+    encoded[3] = 8
+    print(f"Corrupted message:      \033[91m{encoded}\033[0m")
+
+    corrected_msg, corrected_ecc = correct_message(encoded, r, erase_pos=[7])
+    print(f"Corrected ASCII:        \033[92m{corrected_msg + corrected_ecc}\033[0m")
+    print(f"Recovered message:      \033[96m{''.join([chr(c) for c in corrected_msg])}\033[0m")
+
