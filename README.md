@@ -39,7 +39,7 @@ This example demonstrates encoding a message, introducing errors and erasures, a
 from GFmath import *
 
 # Original message and parameters
- message = "BÏÕHÄzÃRÐ"
+message = "BÏÕHÄzÃRÐ"
 n = 20 # Total codeword length (message + parity)
 k = len(message) # Message length
 r = n - k  # Number of parity symbols (corrects up to 4 errors)
