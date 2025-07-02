@@ -146,27 +146,42 @@ def correct_message(msg, r, erase_pos=None):
 
 # Example usage
 if __name__ == "__main__":
-    n = 20 # n is the total number of characters in the code word (message + verification characters)
+    
+    # Original message and parameters
     message = "BÏÕHÄzÃRÐ"
-    k = len(message)
-    r = n - k
+    n = 20 # Total codeword length (message + parity)
+    k = len(message) # Message length
+    r = n - k  # Number of parity symbols (corrects up to 4 errors)
 
+
+    # Initialize Galois Field tables
     create_tables()
 
-    print(f"Original message:       \033[95m{message}\033[0m")
+    # Convert string message to ASCII codes
     ascii_msg = [ord(c) for c in message]
-    print(f"Message in ASCII:       \033[92m{ascii_msg}\033[0m")
 
+    # Encode the message by appending parity symbols
     encoded = encode_message(ascii_msg, r)
-    print(f"Encoded message:        \033[92m{encoded}\033[0m")
+    encoded_no_corr = encoded.copy()
 
-    # Introduce some errors and erasures
+    # Introduce errors in the encoded message
     encoded[0] = 12
     encoded[1] = 101
     encoded[6] = 15
     encoded[3] = 8
-    print(f"Corrupted message:      \033[91m{encoded}\033[0m")
 
-    corrected_msg, corrected_ecc = correct_message(encoded, r, erase_pos=[7])
+    # Specify known erasure positions (indices where errors are known)
+    erase_pos = [7]
+
+    # Attempt error correction with erasures
+    corrected_msg, corrected_ecc = correct_message(encoded, r, erase_pos=erase_pos)
+
+    # Output results
+    print(f"Original message:       \033[95m{message}\033[0m")
+    print(f"Encoded message:        \033[92m{encoded_no_corr}\033[0m")
+    print(f"Corrupted message:      \033[91m{encoded}\033[0m")
     print(f"Corrected ASCII:        \033[92m{corrected_msg + corrected_ecc}\033[0m")
     print(f"Recovered message:      \033[96m{''.join([chr(c) for c in corrected_msg])}\033[0m")
+
+
+
