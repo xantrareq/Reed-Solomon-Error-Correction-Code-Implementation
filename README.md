@@ -33,31 +33,46 @@ This library provides functions for arithmetic operations in the finite field GF
 
 ## Usage
 
-1. Initialize tables with the primitive polynomial (default `0x11d`):
+This example demonstrates encoding a message, introducing errors and erasures, and then correcting it.
 
 ```python
-    n = 20 # n is the total number of characters in the code word (message + verification characters)
-    message = "BÏÕHÄzÃRÐ"
-    k = len(message)
-    r = n - k
+from GFmath import *
 
-    create_tables()
+# Original message and parameters
+ message = "BÏÕHÄzÃRÐ"
+n = 20 # Total codeword length (message + parity)
+k = len(message) # Message length
+r = n - k  # Number of parity symbols (corrects up to 4 errors)
 
-    print(f"Original message:       \033[95m{message}\033[0m")
-    ascii_msg = [ord(c) for c in message]
-    print(f"Message in ASCII:       \033[92m{ascii_msg}\033[0m")
 
-    encoded = encode_message(ascii_msg, r)
-    print(f"Encoded message:        \033[92m{encoded}\033[0m")
+# Initialize Galois Field tables
+create_tables()
 
-    # Introduce some errors and erasures
-    encoded[0] = 12
-    encoded[1] = 101
-    encoded[6] = 15
-    encoded[3] = 8
-    print(f"Corrupted message:      \033[91m{encoded}\033[0m")
+# Convert string message to ASCII codes
+ascii_msg = [ord(c) for c in message]
 
-    corrected_msg, corrected_ecc = correct_message(encoded, r, erase_pos=[7])
-    print(f"Corrected ASCII:        \033[92m{corrected_msg + corrected_ecc}\033[0m")
-    print(f"Recovered message:      \033[96m{''.join([chr(c) for c in corrected_msg])}\033[0m")
+# Encode the message by appending parity symbols
+encoded = encode_message(ascii_msg, r)
+encoded_no_corr = encoded.copy()
+
+# Introduce errors in the encoded message
+encoded[0] = 12
+encoded[1] = 101
+encoded[6] = 15
+encoded[3] = 8
+
+# Specify known erasure positions (indices where errors are known)
+erase_pos = [7]
+
+# Attempt error correction with erasures
+corrected_msg, corrected_ecc = correct_message(encoded, r, erase_pos=erase_pos)
+
+# Output results
+print(f"Original message:       \033[95m{message}\033[0m")
+print(f"Encoded message:        \033[92m{encoded_no_corr}\033[0m")
+print(f"Corrupted message:      \033[91m{encoded}\033[0m")
+print(f"Corrected ASCII:        \033[92m{corrected_msg + corrected_ecc}\033[0m")
+print(f"Recovered message:      \033[96m{''.join([chr(c) for c in corrected_msg])}\033[0m")
+
+
 
